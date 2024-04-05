@@ -1,0 +1,1235 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ImagesBugMaui.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:cards="clr-namespace:PanCardView;assembly=PanCardView"
+    xmlns:control="clr-namespace:PanCardView.Controls;assembly=PanCardView"
+    xmlns:local="clr-namespace:ImagesBugMaui"
+    xmlns:proc="clr-namespace:PanCardView.Processors;assembly=PanCardView"
+    xmlns:sk="clr-namespace:Maui.Skeleton;assembly=Sharpnado.HorusSkeleton.Maui"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="false">
+
+    <ContentPage.Resources>
+        <Style x:Key="IndicatorButtomStyle" TargetType="Button">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+
+                                <Setter Property="HeightRequest" Value="5" />
+                                <Setter Property="WidthRequest" Value="5" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="HeightRequest" Value="5" />
+                                <Setter Property="WidthRequest" Value="25" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+        <ResourceDictionary>
+            <Style x:Key="ActiveIndicator" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="Red" />
+                <Setter Property="WidthRequest" Value="50" />
+
+            </Style>
+            <Style x:Key="InactiveIndicator" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="WidthRequest" Value="20" />
+
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Grid
+        x:Name="MainGrid"
+        Margin="0,0,-2,0"
+        BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                          Dark={StaticResource PrimaryDark},
+                                          Default={StaticResource PrimaryDark}}">
+
+        <!--<Grid.GestureRecognizers>
+            <TapGestureRecognizer Tapped="ClickGestureRecognizer_Clicked"/>
+        </Grid.GestureRecognizers>-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="*" />
+            <!--<RowDefinition Height="auto"/>-->
+            <!--<RowDefinition Height="80" />-->
+        </Grid.RowDefinitions>
+
+        <!--<Image Source="https://image.tmdb.org/t/p/w300/rcICfiL9fvwRjoWHxW8QeroLYrJ.jpg" Aspect="AspectFill"/>-->
+        <!--  IsRefreshing="{Binding IsRefreshing}"  -->
+        <RefreshView
+            x:Name="RefreshVM"
+            Grid.RowSpan="2"
+            BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                              Dark={StaticResource PrimaryDark},
+                                              Default={StaticResource PrimaryDark}}"
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}"
+            RefreshColor="Red">
+            <ScrollView
+                x:Name="MainScroll"
+                HeightRequest="{Binding Source={x:Reference RefreshVM}, Path=Height}"
+                VerticalScrollBarVisibility="{OnPlatform Android=Never,
+                                                         WinUI=Default}">
+
+                <Grid
+                    x:Name="StackMain"
+                    sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                Interval='600',
+                                                                Parameter='2'}"
+                    sk:Skeleton.BackgroundColor="Transparent"
+                    sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                    sk:Skeleton.IsParent="True"
+                    RowDefinitions="{OnPlatform Android='350,*',
+                                                WinUI='400,*'}">
+
+                    <Grid Margin="0">
+
+                        <cards:CoverFlowView
+                            x:Name="MainCarousel"
+                            Margin="0,0,0,0"
+                            IsCyclical="True"
+                            IsUserInteractionEnabled="True"
+                            ItemsSource="{Binding ListaCarousel}"
+                            PositionShiftValue="{OnIdiom TV=200,
+                                                         Phone=0,
+                                                         Desktop=550}">
+                            <x:Arguments>
+                                <proc:CoverFlowProcessor OpacityFactor="0.25" ScaleFactor="{OnPlatform Android='1', WinUI='0.75'}" />
+                            </x:Arguments>
+                            <cards:CoverFlowView.ItemTemplate>
+
+                                <DataTemplate>
+
+                                    <Grid
+                                        Margin="0,0,0,0"
+                                        HorizontalOptions="{OnIdiom TV=Center,
+                                                                    Phone=Start,
+                                                                    Desktop=Center}"
+                                        Opacity="1">
+
+                                        <Border StrokeThickness="0">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="{OnIdiom TV=10, Phone=0, Desktop=10}" />
+                                            </Border.StrokeShape>
+                                            <Image
+                                                Margin="0,0,0,0"
+                                                Aspect="AspectFill"
+                                                BackgroundColor="Transparent"
+                                                HeightRequest="{OnPlatform Android=350,
+                                                                           WinUI=400}"
+                                                Opacity="{OnPlatform Android=0.6,
+                                                                     WinUI=0.8}"
+                                                Source="{Binding BackdropPath}"
+                                                WidthRequest="{OnIdiom TV=700,
+                                                                       Phone=400,
+                                                                       Desktop=850}" />
+                                        </Border>
+
+
+                                        <Label
+                                            Margin="20,50,0,0"
+                                            FontAttributes="Bold"
+                                            FontSize="25"
+                                            HorizontalOptions="StartAndExpand"
+                                            HorizontalTextAlignment="Start"
+                                            Text="{Binding title}"
+                                            TextColor="White"
+                                            TextTransform="None"
+                                            VerticalOptions="Center"
+                                            WidthRequest="{OnIdiom Default=350,
+                                                                   Desktop=600}" />
+
+
+
+                                        <StackLayout
+                                            Margin="15,140,0,0"
+                                            Orientation="Horizontal"
+                                            VerticalOptions="Center">
+                                            <Border
+                                                Margin="5,0,0,0"
+                                                BackgroundColor="#E21221"
+                                                HeightRequest="20"
+                                                HorizontalOptions="Start"
+                                                Stroke="#FB101D"
+                                                VerticalOptions="CenterAndExpand"
+                                                WidthRequest="30">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="5" />
+                                                </Border.StrokeShape>
+                                                <Label
+                                                    FontSize="10"
+                                                    HorizontalOptions="Center"
+                                                    Text="{Binding voteAverageInteger}"
+                                                    TextColor="White"
+                                                    VerticalOptions="Center" />
+                                            </Border>
+
+                                        </StackLayout>
+
+
+
+                                        <!--<CollectionView
+                                                Margin="25,-90,0,0"
+                                                IsVisible="{Binding GenresNames, Converter={StaticResource IsListNotNullOrEmptyConverter}}"
+                                                ItemsSource="{Binding GenresNames}">
+                                                <CollectionView.ItemsLayout>
+                                                    <GridItemsLayout
+                                                        HorizontalItemSpacing="5"
+                                                        Orientation="Horizontal"
+                                                        Span="1" />
+                                                </CollectionView.ItemsLayout>
+                                                <CollectionView.ItemTemplate>
+                                                    <DataTemplate>
+
+                                                        <Grid>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="auto" />
+
+                                                            </Grid.RowDefinitions>
+                                                            <Button
+                                                                Padding="8,5,8,5"
+                                                                BackgroundColor="#0D0D0D"
+                                                                FontSize="10"
+                                                                Opacity="0.7"
+                                                                Text="{Binding}"
+                                                                TextColor="White" />
+
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </CollectionView.ItemTemplate>
+                                            </CollectionView> IsVisible="{Binding GenresNames, Converter={StaticResource IsListNotNullOrEmptyConverter}}"-->
+
+
+                                        <StackLayout Orientation="Horizontal">
+                                            <Button
+                                                x:Name="carBtn"
+                                                Margin="20,0,0,50"
+                                                Padding="{OnIdiom Desktop='15,5,20,5'}"
+                                                BackgroundColor="Red"
+                                                CornerRadius="{OnIdiom Default=25,
+                                                                       Desktop=18}"
+                                                FontAttributes="Bold"
+                                                FontSize="12"
+                                                HeightRequest="35"
+                                                HorizontalOptions="Start"
+                                                ImageSource="{FontImage &#xf144;,
+                                                                        FontFamily=FontAwesomeSolid,
+                                                                        Size=18,
+                                                                        Color=white}"
+                                                Text="Reproducir"
+                                                TextColor="White"
+                                                VerticalOptions="EndAndExpand" />
+                                            <Button
+                                                x:Name="listaBtn"
+                                                Margin="15,0,0,50"
+                                                BackgroundColor="Transparent"
+                                                BorderColor="White"
+                                                BorderWidth="1.5"
+                                                CornerRadius="25"
+                                                FontAttributes="Bold"
+                                                FontSize="12"
+                                                HeightRequest="35"
+                                                HorizontalOptions="StartAndExpand"
+                                                ImageSource="{FontImage &#xf055;,
+                                                                        FontFamily=FontAwesomeSolid,
+                                                                        Size=18,
+                                                                        Color=white}"
+                                                IsVisible="False"
+                                                Text="Mi Lista"
+                                                TextColor="White"
+                                                VerticalOptions="EndAndExpand" />
+                                        </StackLayout>
+
+
+                                    </Grid>
+
+                                </DataTemplate>
+                            </cards:CoverFlowView.ItemTemplate>
+
+                        </cards:CoverFlowView>
+                        <IndicatorView
+                            x:Name="indicatorView"
+                            Margin="100,0,25,30"
+                            BackgroundColor="Transparent"
+                            HorizontalOptions="CenterAndExpand"
+                            IndicatorColor="#78797C"
+                            IndicatorSize="20"
+                            IsVisible="false"
+                            MaximumVisible="5"
+                            SelectedIndicatorColor="Red"
+                            VerticalOptions="End">
+                            <IndicatorView.IndicatorTemplate>
+                                <DataTemplate>
+                                    <Button Style="{DynamicResource IndicatorButtomStyle}" />
+                                </DataTemplate>
+                            </IndicatorView.IndicatorTemplate>
+                        </IndicatorView>
+                        <Grid
+                            Margin="0,0,0,0"
+                            HorizontalOptions="FillAndExpand"
+                            IsVisible="{OnIdiom Default=true,
+                                                Desktop=false}"
+                            VerticalOptions="FillAndExpand">
+                            <Grid.Background>
+                                <!--  StartPoint defaults to (0,0)  -->
+                                <LinearGradientBrush EndPoint="0,1">
+                                    <GradientStop Offset="{OnIdiom Default=0.90, Desktop=0.8}" Color="Transparent" />
+                                    <GradientStop Offset="0.99" Color="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource PrimaryDark}, Default={StaticResource PrimaryDark}}" />
+
+                                </LinearGradientBrush>
+                            </Grid.Background>
+                            <StackLayout IsVisible="{OnIdiom Default=false, Desktop=false}" Orientation="Horizontal">
+                                <ImageButton
+                                    HeightRequest="20"
+                                    HorizontalOptions="StartAndExpand"
+                                    Source="logo"
+                                    VerticalOptions="StartAndExpand" />
+                            </StackLayout>
+
+                            <!--<Button
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="End"
+                                ImageSource="{FontImage &#xf002;,
+                                                        FontFamily=FontAwesome,
+                                                        Size=18,
+                                                        Color=white}" />-->
+                            <!--<Button
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="End"
+                                ImageSource="{FontImage &#xf0f3;,
+                                                        FontFamily=FontAwesome,
+                                                        Size=18,
+                                                        Color=white}" />-->
+                        </Grid>
+
+                    </Grid>
+
+                    <StackLayout
+                        x:Name="StackContentMain"
+                        Grid.Row="1"
+                        Margin="0,0,0,0"
+                        Orientation="Vertical">
+                        <StackLayout
+                            Margin="0,0,0,0"
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            HorizontalOptions="FillAndExpand"
+                            Orientation="Horizontal">
+                            <Label
+                                Margin="25,0,20,0"
+                                CharacterSpacing="1"
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                HorizontalTextAlignment="Start"
+                                Text="Películas populares"
+                                TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                            Dark={StaticResource White},
+                                                            Default={StaticResource Black}}"
+                                TextTransform="None"
+                                VerticalOptions="CenterAndExpand" />
+                            <Button
+                                x:Name="TopMoviePopularBtn"
+                                Margin="0,0,0,0"
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                HeightRequest="40"
+                                HorizontalOptions="EndAndExpand"
+                                Text="Ver todo"
+                                TextColor="#C6101D"
+                                TextTransform="None" />
+
+                        </StackLayout>
+
+
+                        <CollectionView
+                            x:Name="ListTopMovie"
+                            Margin="0,0,0,0"
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="#181A20"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            IsVisible="True"
+                            ItemsSource="{Binding ListaTopMovies}"
+                            SelectionMode="Single">
+
+
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout HorizontalItemSpacing="{OnPlatform Android=0, WinUI=5}" Orientation="Horizontal" />
+                            </CollectionView.ItemsLayout>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+
+                                    <Grid
+                                        Margin="15,0,0,0"
+                                        ColumnSpacing="100"
+                                        WidthRequest="{OnPlatform Android=100,
+                                                                  WinUI=150}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="{OnPlatform Android=150, WinUI=250}" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Border
+                                            x:Name="listaTopMovies"
+                                            Grid.Row="0"
+                                            Margin="0,0,0,0"
+                                            Stroke="Transparent"
+                                            StrokeThickness="0">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="10" />
+                                            </Border.StrokeShape>
+                                            <Image
+                                                x:Name="imageI"
+                                                Margin="0,0,0,0"
+                                                Aspect="AspectFill"
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                                                                  Dark={StaticResource Black},
+                                                                                  Default={StaticResource Black}}"
+                                                Source="{Binding imagePoster}" />
+                                        </Border>
+                                        <Border
+                                            Margin="10,10,0,0"
+                                            BackgroundColor="#E21221"
+                                            HeightRequest="20"
+                                            HorizontalOptions="Start"
+                                            Stroke="#FB101D"
+                                            VerticalOptions="Start"
+                                            WidthRequest="30">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="5" />
+                                            </Border.StrokeShape>
+                                            <Label
+                                                FontSize="10"
+                                                HorizontalOptions="Center"
+                                                Text="{Binding voteAverageInteger}"
+                                                TextColor="White"
+                                                VerticalOptions="Center" />
+                                        </Border>
+
+
+                                        <!--<ActivityIndicator
+                                HeightRequest="25"
+                                IsRunning="{Binding Source={x:Reference imageI}, Path=IsLoading}"
+                                WidthRequest="25" />-->
+                                        <Label
+                                            Grid.Row="1"
+                                            Margin="0,0,0,0"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{Binding title}"
+                                            TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                                        Dark={StaticResource White},
+                                                                        Default={StaticResource Black}}"
+                                            VerticalOptions="Start" />
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="1" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Selected">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="0.5" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Grid>
+
+
+
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <!--<CollectionView.EmptyView>
+            <ContentView>
+                <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                    <ActivityIndicator IsRunning="{Binding Source={x:Reference RefreshVM}, Path=IsRefreshing}" />
+                </StackLayout>
+            </ContentView>
+        </CollectionView.EmptyView>-->
+                        </CollectionView>
+                        <!--</StackLayout>-->
+                        <!--  Anime  -->
+                        <StackLayout
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            Orientation="Horizontal">
+                            <Label
+                                Margin="25,0,20,0"
+                                CharacterSpacing="1"
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                HorizontalTextAlignment="Start"
+                                Text="Mejores Anime"
+                                TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                            Dark={StaticResource White},
+                                                            Default={StaticResource Black}}"
+                                TextTransform="None"
+                                VerticalOptions="CenterAndExpand" />
+                            <Button
+                                x:Name="topAnimeBtn"
+                                Margin="0,0,0,0"
+                                BackgroundColor="Transparent"
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                HeightRequest="40"
+                                HorizontalOptions="EndAndExpand"
+                                Text="Ver todo"
+                                TextColor="#C6101D"
+                                TextTransform="None" />
+                        </StackLayout>
+                        <CollectionView
+                            x:Name="ListTopAnime"
+                            Margin="0,0,0,0"
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            HorizontalScrollBarVisibility="Default"
+                            IsVisible="True"
+                            ItemsSource="{Binding ListaTopAnime}"
+                            SelectionMode="Single">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout
+                                    HorizontalItemSpacing="{OnPlatform Android=0,
+                                                                       WinUI=5}"
+                                    Orientation="Horizontal"
+                                    Span="{OnPlatform Android=0,
+                                                      WinUI=1}"
+                                    VerticalItemSpacing="{OnPlatform Android=0,
+                                                                     WinUI=5}" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+
+
+                                    <Grid
+                                        Margin="15,0,0,0"
+                                        ColumnSpacing="100"
+                                        WidthRequest="{OnPlatform Android=100,
+                                                                  WinUI=150}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="{OnPlatform Android=150, WinUI=250}" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Border
+                                            x:Name="listaTopMovies"
+                                            Grid.Row="0"
+                                            Margin="0,0,0,0"
+                                            Stroke="Transparent"
+                                            StrokeThickness="0">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="10" />
+                                            </Border.StrokeShape>
+                                            <Image
+                                                x:Name="imageI"
+                                                Margin="0,0,0,0"
+                                                Aspect="AspectFill"
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                                                                  Dark={StaticResource Black},
+                                                                                  Default={StaticResource Black}}"
+                                                Source="{Binding imagePoster}" />
+                                        </Border>
+                                        <Border
+                                            Margin="10,10,0,0"
+                                            BackgroundColor="#E21221"
+                                            HeightRequest="20"
+                                            HorizontalOptions="Start"
+                                            Stroke="#FB101D"
+                                            VerticalOptions="Start"
+                                            WidthRequest="30">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="5" />
+                                            </Border.StrokeShape>
+                                            <Label
+                                                FontSize="10"
+                                                HorizontalOptions="Center"
+                                                Text="{Binding voteAverageInteger}"
+                                                TextColor="White"
+                                                VerticalOptions="Center" />
+                                        </Border>
+
+
+                                        <!--<ActivityIndicator
+HeightRequest="25"
+IsRunning="{Binding Source={x:Reference imageI}, Path=IsLoading}"
+WidthRequest="25" />-->
+                                        <Label
+                                            Grid.Row="1"
+                                            Margin="0,0,0,0"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{Binding title}"
+                                            TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                                        Dark={StaticResource White},
+                                                                        Default={StaticResource Black}}"
+                                            VerticalOptions="Start" />
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="1" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Selected">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="0.5" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <!--<CollectionView.EmptyView>
+            <ContentView>
+                <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                    <ActivityIndicator IsRunning="{Binding Source={x:Reference RefreshVM}, Path=IsRefreshing}" />
+                </StackLayout>
+            </ContentView>
+        </CollectionView.EmptyView>-->
+                        </CollectionView>
+
+                        <!--  https://www.themoviedb.org/tv  -->
+                        <StackLayout
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            Orientation="Horizontal">
+                            <Label
+                                Margin="25,0,20,0"
+                                CharacterSpacing="1"
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                HorizontalTextAlignment="Start"
+                                Text="Series de Netflix"
+                                TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                            Dark={StaticResource White},
+                                                            Default={StaticResource Black}}"
+                                TextTransform="None"
+                                VerticalOptions="CenterAndExpand" />
+                            <Button
+                                x:Name="TopTvAllBtn"
+                                Margin="0,0,0,0"
+                                BackgroundColor="Transparent"
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                HeightRequest="40"
+                                HorizontalOptions="EndAndExpand"
+                                Text="Ver todo"
+                                TextColor="#C6101D"
+                                TextTransform="None" />
+                        </StackLayout>
+                        <CollectionView
+                            x:Name="ListTopTvShow"
+                            Margin="0,0,0,0"
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            IsVisible="True"
+                            ItemsSource="{Binding ListaTopTvShows}"
+                            SelectionMode="Single">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout HorizontalItemSpacing="{OnIdiom Default=0, Desktop=5}" Orientation="Horizontal" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+
+
+                                    <Grid
+                                        Margin="15,0,0,0"
+                                        Padding="0,0,0,0"
+                                        ColumnSpacing="{OnIdiom Default=100,
+                                                                Desktop=200}"
+                                        WidthRequest="{OnIdiom Default=200,
+                                                               Desktop=370}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="{OnIdiom Default=110, Desktop=190}" />
+                                            <RowDefinition Height="*" />
+
+                                        </Grid.RowDefinitions>
+
+                                        <Border
+                                            x:Name="listaTopMovies"
+                                            Grid.Row="0"
+                                            Stroke="Transparent">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="10" />
+                                            </Border.StrokeShape>
+                                            <Image
+                                                x:Name="imageI"
+                                                Margin="0,0,0,0"
+                                                sk:Skeleton.IsBusy="{Binding Source={x:Reference imageI}, Path=IsLoading}"
+                                                Aspect="AspectFill"
+                                                BackgroundColor="Black"
+                                                Source="{Binding BackdropPath}" />
+                                        </Border>
+                                        <Border
+                                            Margin="10,10,0,0"
+                                            BackgroundColor="#E21221"
+                                            HeightRequest="20"
+                                            HorizontalOptions="Start"
+                                            Stroke="#FB101D"
+                                            VerticalOptions="Start"
+                                            WidthRequest="30">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="5" />
+                                            </Border.StrokeShape>
+                                            <Label
+                                                FontSize="10"
+                                                HorizontalOptions="Center"
+                                                Text="{Binding voteAverageInteger}"
+                                                TextColor="White"
+                                                VerticalOptions="Center" />
+                                        </Border>
+
+
+                                        <!--<ActivityIndicator
+                                HeightRequest="25"
+                                IsRunning="{Binding Source={x:Reference imageI}, Path=IsLoading}"
+                                WidthRequest="25" />-->
+                                        <Label
+                                            Grid.Row="1"
+                                            Margin="0,0,0,0"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{Binding title}"
+                                            TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                                        Dark={StaticResource White},
+                                                                        Default={StaticResource Black}}"
+                                            VerticalOptions="Start" />
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="1" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Selected">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="0.5" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Grid>
+
+
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <!--<CollectionView.EmptyView>
+            <ContentView>
+                <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                    <ActivityIndicator IsRunning="{Binding Source={x:Reference RefreshVM}, Path=IsRefreshing}" />
+                </StackLayout>
+            </ContentView>
+        </CollectionView.EmptyView>-->
+                        </CollectionView>
+
+                        <!--  https://www.themoviedb.org/tv/top-rated  -->
+                        <StackLayout
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            Orientation="Horizontal">
+                            <Label
+                                Margin="25,0,20,0"
+                                CharacterSpacing="1"
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                HorizontalTextAlignment="Start"
+                                Text="Series Mejor Votadas"
+                                TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                            Dark={StaticResource White},
+                                                            Default={StaticResource Black}}"
+                                TextTransform="None"
+                                VerticalOptions="CenterAndExpand" />
+                            <Button
+                                x:Name="ratedTvAllBtn"
+                                Margin="0,0,0,0"
+                                BackgroundColor="Transparent"
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                HeightRequest="40"
+                                HorizontalOptions="EndAndExpand"
+                                Text="Ver todo"
+                                TextColor="#C6101D"
+                                TextTransform="None" />
+                        </StackLayout>
+                        <CollectionView
+                            x:Name="ListTopRatedTvShows"
+                            Margin="0,0,0,0"
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            IsVisible="True"
+                            ItemsSource="{Binding ListaTopRatedTvShows}"
+                            SelectionMode="Single">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout
+                                    HorizontalItemSpacing="{OnPlatform Android=0,
+                                                                       WinUI=5}"
+                                    Orientation="Horizontal"
+                                    Span="{OnPlatform Android=0,
+                                                      WinUI=1}"
+                                    VerticalItemSpacing="{OnPlatform Android=0,
+                                                                     WinUI=5}" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+
+
+                                    <Grid
+                                        Margin="15,0,0,0"
+                                        ColumnSpacing="100"
+                                        WidthRequest="{OnPlatform Android=100,
+                                                                  WinUI=150}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="{OnPlatform Android=150, WinUI=250}" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Border
+                                            x:Name="listaTopMovies"
+                                            Grid.Row="0"
+                                            Stroke="Transparent">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="10" />
+                                            </Border.StrokeShape>
+                                            <Image
+                                                x:Name="imageI"
+                                                Margin="0,0,0,0"
+                                                Aspect="AspectFill"
+                                                BackgroundColor="Black"
+                                                Source="{Binding imagePoster}" />
+                                        </Border>
+                                        <Border
+                                            Margin="10,10,0,0"
+                                            BackgroundColor="#E21221"
+                                            HeightRequest="20"
+                                            HorizontalOptions="Start"
+                                            Stroke="#FB101D"
+                                            VerticalOptions="Start"
+                                            WidthRequest="30">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="5" />
+                                            </Border.StrokeShape>
+                                            <Label
+                                                FontSize="10"
+                                                HorizontalOptions="Center"
+                                                Text="{Binding voteAverageInteger}"
+                                                TextColor="White"
+                                                VerticalOptions="Center" />
+                                        </Border>
+
+
+                                        <!--<ActivityIndicator
+                            HeightRequest="25"
+                            IsRunning="{Binding Source={x:Reference imageI}, Path=IsLoading}"
+                            WidthRequest="25" />-->
+                                        <Label
+                                            Grid.Row="1"
+                                            Margin="0,0,0,0"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{Binding title}"
+                                            TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                                        Dark={StaticResource White},
+                                                                        Default={StaticResource Black}}"
+                                            VerticalOptions="Start" />
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="1" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Selected">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="0.5" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Grid>
+
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <!--<CollectionView.EmptyView>
+            <ContentView>
+                <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                    <ActivityIndicator IsRunning="{Binding Source={x:Reference RefreshVM}, Path=IsRefreshing}" />
+                </StackLayout>
+            </ContentView>
+        </CollectionView.EmptyView>-->
+                        </CollectionView>
+
+                        <!--  https://www.themoviedb.org/movie/now-playing  -->
+                        <StackLayout
+                            Margin="0,0,0,0"
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            HorizontalOptions="FillAndExpand"
+                            Orientation="Horizontal">
+                            <Label
+                                Margin="25,0,20,0"
+                                CharacterSpacing="1"
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                HorizontalTextAlignment="Start"
+                                Text="En Cines"
+                                TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                            Dark={StaticResource White},
+                                                            Default={StaticResource Black}}"
+                                TextTransform="None"
+                                VerticalOptions="CenterAndExpand" />
+                            <Button
+                                x:Name="TopUpCommingBtn"
+                                Margin="0,0,0,0"
+                                BackgroundColor="Transparent"
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                HeightRequest="40"
+                                HorizontalOptions="EndAndExpand"
+                                Text="Ver todo"
+                                TextColor="#C6101D"
+                                TextTransform="None" />
+                        </StackLayout>
+                        <CollectionView
+                            x:Name="ListTopMUpComming"
+                            Margin="0,0,0,0"
+                            sk:Skeleton.Animation="{sk:DefaultAnimation Source=HorizontalShake,
+                                                                        Interval='600',
+                                                                        Parameter='2'}"
+                            sk:Skeleton.BackgroundColor="Transparent"
+                            sk:Skeleton.IsBusy="{Binding IsRefreshing}"
+                            sk:Skeleton.IsParent="True"
+                            IsVisible="True"
+                            ItemsSource="{Binding ListaTopMoviesUpComming}"
+                            SelectionMode="Single">
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout
+                                    HorizontalItemSpacing="{OnPlatform Android=0,
+                                                                       WinUI=5}"
+                                    Orientation="Horizontal"
+                                    Span="{OnPlatform Android=0,
+                                                      WinUI=1}"
+                                    VerticalItemSpacing="{OnPlatform Android=0,
+                                                                     WinUI=5}" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+
+
+                                    <Grid
+                                        Margin="15,0,0,0"
+                                        ColumnSpacing="100"
+                                        WidthRequest="{OnPlatform Android=100,
+                                                                  WinUI=150}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="{OnPlatform Android=150, WinUI=250}" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <ActivityIndicator
+                                            HeightRequest="25"
+                                            IsRunning="True"
+                                            WidthRequest="25" />
+                                        <Border
+                                            x:Name="listaTopMovies"
+                                            Grid.Row="0"
+                                            Stroke="Transparent">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="10" />
+                                            </Border.StrokeShape>
+                                            <Image
+                                                x:Name="imageI"
+                                                Margin="0,0,0,0"
+                                                sk:Skeleton.IsBusy="{Binding Source={x:Reference imageI}, Path=IsLoading}"
+                                                Aspect="AspectFill"
+                                                BackgroundColor="Black"
+                                                Source="{Binding imagePoster}" />
+                                        </Border>
+                                        <Border
+                                            Margin="10,10,0,0"
+                                            BackgroundColor="#E21221"
+                                            HeightRequest="20"
+                                            HorizontalOptions="Start"
+                                            Stroke="#FB101D"
+                                            VerticalOptions="Start"
+                                            WidthRequest="30">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="5" />
+                                            </Border.StrokeShape>
+                                            <Label
+                                                FontSize="10"
+                                                HorizontalOptions="Center"
+                                                Text="{Binding voteAverageInteger}"
+                                                TextColor="White"
+                                                VerticalOptions="Center" />
+                                        </Border>
+
+
+                                        <!--<ActivityIndicator
+                                HeightRequest="25"
+                                IsRunning="{Binding Source={x:Reference imageI}, Path=IsLoading}"
+                                WidthRequest="25" />-->
+                                        <Label
+                                            Grid.Row="1"
+                                            Margin="0,0,0,0"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{Binding title}"
+                                            TextColor="{AppThemeBinding Light={StaticResource Black},
+                                                                        Dark={StaticResource White},
+                                                                        Default={StaticResource Black}}"
+                                            VerticalOptions="Start" />
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="1" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Selected">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="Opacity" Value="0.5" />
+
+                                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Grid>
+
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <!--<CollectionView.EmptyView>
+            <ContentView>
+                <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                    <ActivityIndicator IsRunning="{Binding Source={x:Reference RefreshVM}, Path=IsRefreshing}" />
+                </StackLayout>
+            </ContentView>
+        </CollectionView.EmptyView>-->
+                        </CollectionView>
+                    </StackLayout>
+
+
+                </Grid>
+            </ScrollView>
+        </RefreshView>
+        <StackLayout
+            Grid.Row="0"
+            IsVisible="False"
+            Orientation="Horizontal"
+            VerticalOptions="StartAndExpand">
+            <StackLayout Margin="15,40,0,0" Orientation="Horizontal">
+                <ImageButton
+                    x:Name="MenuBtn"
+                    HeightRequest="45"
+                    Source="menu_icon"
+                    WidthRequest="30" />
+            </StackLayout>
+        </StackLayout>
+        <StackLayout
+            x:Name="HamburgerMenu"
+            Grid.RowSpan="4"
+            Margin="0,-2,0,0"
+            IsVisible="false">
+            <Border
+                x:Name="ScrollHamburger"
+                BackgroundColor="#161616"
+                Stroke="Transparent"
+                VerticalOptions="FillAndExpand">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="0,0,0,0" />
+                </Border.StrokeShape>
+                <ScrollView>
+                    <StackLayout
+                        Margin="60,30,0,0"
+                        BackgroundColor="Transparent"
+                        Orientation="Vertical">
+                        <Label
+                            Margin="0,20,0,0"
+                            FontAttributes="Bold"
+                            FontSize="20"
+                            HorizontalTextAlignment="Center"
+                            Text="{Binding Correo}"
+                            TextColor="White"
+                            VerticalTextAlignment="Center" />
+                        <StackLayout
+                            Margin="0,10,0,0"
+                            HorizontalOptions="CenterAndExpand"
+                            Orientation="Horizontal">
+                            <ImageButton
+                                Margin="0,0,0,0"
+                                HeightRequest="22"
+                                Source="setting_icon_white.png"
+                                Style="{DynamicResource imageButtomMenu}"
+                                WidthRequest="22" />
+                            <Frame
+                                Margin="30,0,0,0"
+                                BorderColor="#84909C"
+                                CornerRadius="100"
+                                HeightRequest="70"
+                                WidthRequest="70">
+                                <ImageButton
+                                    Margin="-20"
+                                    Source="pepe_image.png"
+                                    Style="{DynamicResource imageButtomMenu}" />
+                            </Frame>
+                            <ImageButton
+                                Margin="30,0,0,0"
+                                HeightRequest="22"
+                                Style="{DynamicResource imageButtomMenu}"
+                                WidthRequest="22" />
+                        </StackLayout>
+                        <StackLayout Margin="0,10,2,0">
+                            <Grid />
+                            <Button
+                                x:Name="tvBtn"
+                                Padding="-100,10,10,10"
+                                BackgroundColor="Transparent"
+                                CornerRadius="0"
+                                FontSize="16"
+                                HorizontalOptions="FillAndExpand"
+                                Text="Tv Shows"
+                                TextColor="#909EA9" />
+                            <Button
+                                x:Name="movieBtn"
+                                Padding="-120,10,10,10"
+                                BackgroundColor="Transparent"
+                                CornerRadius="0"
+                                FontSize="16"
+                                HorizontalOptions="FillAndExpand"
+                                Text="Movies"
+                                TextColor="#909EA9" />
+                            <Button
+                                x:Name="collectionBtn"
+                                Padding="-85,10,10,10"
+                                BackgroundColor="Transparent"
+                                CornerRadius="0"
+                                FontSize="16"
+                                HorizontalOptions="FillAndExpand"
+                                Text="Colecciones"
+                                TextColor="#909EA9" />
+                            <Line
+                                Margin="0,10,0,0"
+                                HeightRequest="5"
+                                Stroke="#4B5356"
+                                VerticalOptions="CenterAndExpand"
+                                X1="0"
+                                X2="500"
+                                Y1="0"
+                                Y2="0" />
+                            <Button
+                                x:Name="settingsBtn"
+                                Padding="-68,10,10,10"
+                                BackgroundColor="Transparent"
+                                CornerRadius="0"
+                                FontSize="16"
+                                HorizontalOptions="FillAndExpand"
+                                Text="Configuración"
+                                TextColor="#909EA9" />
+                            <Button
+                                x:Name="accountBtn"
+                                Padding="-120,10,10,10"
+                                BackgroundColor="Transparent"
+                                CornerRadius="0"
+                                FontSize="16"
+                                HorizontalOptions="FillAndExpand"
+                                Text="Cuenta"
+                                TextColor="#909EA9" />
+                            <Button
+                                x:Name="salirBtn"
+                                Padding="-140,10,10,10"
+                                BackgroundColor="Transparent"
+                                CornerRadius="0"
+                                FontSize="16"
+                                HorizontalOptions="FillAndExpand"
+                                Text="Salir"
+                                TextColor="#909EA9" />
+                        </StackLayout>
+                    </StackLayout>
+                </ScrollView>
+            </Border>
+
+        </StackLayout>
+    </Grid>
+
+</ContentPage>
